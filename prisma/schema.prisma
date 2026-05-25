@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum SeatStatus {
+  AVAILABLE
+  BOOKED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+
+  orders    Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  date        DateTime
+  location    String
+  price       Int
+  banner      String?
+
+  seats       Seat[]
+  orders      Order[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Seat {
+  id          Int      @id @default(autoincrement())
+  seatNumber  String
+  status      SeatStatus @default(AVAILABLE)
+
+  eventId     Int
+  event       Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  ticket      Ticket?
+
+  @@unique([eventId, seatNumber])
+}
+
+model Order {
+  id            Int      @id @default(autoincrement())
+
+  invoiceCode   String   @unique
+
+  userId        Int
+  user          User @relation(fields: [userId], references: [id])
+
+  eventId       Int
+  event         Event @relation(fields: [eventId], references: [id])
+
+  totalPrice    Int
+
+  paymentStatus PaymentStatus @default(PENDING)
+
+  tickets       Ticket[]
+
+  createdAt     DateTime @default(now())
+}
+
+model Ticket {
+  id         Int @id @default(autoincrement())
+
+  orderId    Int
+  order      Order @relation(fields: [orderId], references: [id])
+
+  seatId     Int @unique
+  seat       Seat @relation(fields: [seatId], references: [id])
+
+  qrCode     String @unique
+
+  isUsed     Boolean @default(false)
+}

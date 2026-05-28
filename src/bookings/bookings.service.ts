@@ -117,8 +117,112 @@ export class BookingsService {
       user: true,
     },
   });
-
   }
+
+  async cancelOrder(
+  userId: number,
+  orderId: number,
+  ) {
+
+  return this.prisma.client.$transaction(
+    async (tx) => {
+
+      const order =
+        await tx.order.findUnique({
+
+          where: {
+            id: orderId,
+          },
+
+          include: {
+            tickets: true,
+          },
+        });
+
+      if (!order) {
+
+        throw new BadRequestException(
+          'Order not found',
+        );
+      }
+
+      if (order.userId !== userId) {
+
+        throw new BadRequestException(
+          'Unauthorized access',
+        );
+      }
+
+      if (
+        order.paymentStatus === 'CANCELLED'
+      ) {
+
+        throw new BadRequestException(
+          'Order already cancelled',
+        );
+      }
+
+      const usedTicket =
+        await tx.ticket.findFirst({
+
+          where: {
+            orderId,
+            isUsed: true,
+          },
+        });
+
+      if (usedTicket) {
+
+        throw new BadRequestException(
+          'Cannot cancel used ticket',
+        );
+      }
+
+      const seatIds =
+        order.tickets.map(
+          (ticket) => ticket.seatId,
+        );
+
+      await tx.seat.updateMany({
+
+        where: {
+          id: {
+            in: seatIds,
+          },
+        },
+
+        data: {
+          status: 'AVAILABLE',
+        },
+      });
+
+      await tx.ticket.deleteMany({
+
+        where: {
+          orderId,
+        },
+      });
+
+      await tx.order.update({
+
+        where: {
+          id: orderId,
+        },
+
+        data: {
+          paymentStatus: 'CANCELLED',
+        },
+      });
+
+      return {
+        message:
+          'Booking cancelled successfully',
+      };
+
+    },
+  );
+
+}
 
   findAll() {
     return `This action returns all bookings`;

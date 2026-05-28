@@ -37,8 +37,9 @@ export class BookingsController {
     return this.bookingsService.update(+id, updateBookingDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bookingsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/cancel')
+  cancelOrder(@Request() req, @Param('id') id: string) {
+    return this.bookingsService.cancelOrder(req.user.userId, +id);
   }
 }

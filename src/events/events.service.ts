@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -39,6 +39,20 @@ export class EventsService {
     }
   }
 
+  async getSeats(eventId: number) {
+
+  return this.prisma.client.seat.findMany({
+    where: {
+      eventId,
+    },
+
+    orderBy: {
+      seatNumber: 'asc',
+    },
+  });
+
+  }
+
   async getSeatStatus(eventId: number) {
     const total = await this.prisma.client.seat.count({
       where: { eventId }
@@ -54,30 +68,113 @@ export class EventsService {
     }
   }
 
-  findAll() {
-    return this.prisma.client.event.findMany({
+  async findAll(query: { page: number; limit: number; search: string }) {
+    const skip = (query.page - 1) * query.limit;
+    const events = await this.prisma.client.event.findMany({
+      where: {
+        title: {
+          contains: query.search,
+        }
+      },
+      include: {
+        seats: true,
+      },
+      skip,
+      take: query.limit,
       orderBy: {
         createdAt: 'desc',
       }
     })
+
+    const total =  await this.prisma.client.event.count({
+      where: {
+        title: {
+          contains: query.search,
+        }
+      }
+    });
+
+    return { data: events, meta: {
+      total,
+      page: query.page,
+      limit: query.limit,
+      totalPages: Math.ceil(total / query.limit),
+    }}
   }
 
-  findOne(id: number) {
-    return this.prisma.client.event.findUnique({
-      where: {
-        id,
-      },
+  async findOne(id: number) {
+    const event = await this.prisma.client.event.findUnique({
+      where: { id },
       include: {
         seats: true,
       }
     })
+    if (!event) {
+      throw new BadRequestException('Event not found');
+    }
+    const totalSeats = event.seats.length;
+    const bookedSeats = event.seats.filter((seat) => seat.status === 'BOOKED').length;
+
+    return {
+      ...event,
+      saetStatus: {
+        total: totalSeats,
+        booked: bookedSeats,
+        available: totalSeats - bookedSeats
+      }
+    }
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  async update(id: number,dto: UpdateEventDto) {
+    const event = await this.prisma.client.event.findUnique({
+      where: { id },
+    })
+
+    if (!event) {
+      throw new BadRequestException('Event not found');
+    }
+
+    return this.prisma.client.event.update({
+      where: { id },
+      data: {
+        title: dto.title,
+        description: dto.description,
+        date: dto.date
+        ? new Date(dto.date)
+        : undefined,
+        location: dto.location,
+        price: dto.price,
+      }
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async remove(id: number) {
+    const event = await this.prisma.client.event.findUnique({
+      where: { id },
+    });
+
+    if (!event) {
+      throw new BadRequestException('Event not found');
+    }
+
+    await this.prisma.client.ticket.deleteMany({
+      where: { seat: { eventId: id } },
+    })
+
+    await this.prisma.client.order.deleteMany({
+      where: { eventId: id },
+    })
+
+    await this.prisma.client.seat.deleteMany({
+      where: { eventId: id },
+    })
+
+    await this.prisma.client.event.delete({
+      where: { id} ,
+    })
+
+    return {
+      message: 'Event deleted successfully',
+    }
   }
 }

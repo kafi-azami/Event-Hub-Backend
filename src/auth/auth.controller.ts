@@ -6,11 +6,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UseGuards, Get,Request } from '@nestjs/common';
 import { RolesGuard } from '../common/roles.guard';
 import { Roles } from '../common/roles.decorator';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) {}
 
+    @ApiOperation({ summary: 'Register new user' })
     @Post('register')
     register(@Body() dto: RegisterDto) {
         return this.authService.register(dto);
@@ -21,6 +24,7 @@ export class AuthController {
         return this.authService.login(dto);
     }
 
+    @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @Get('profile')
     getProfile(@Request() req) {

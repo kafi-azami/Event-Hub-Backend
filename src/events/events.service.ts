@@ -15,6 +15,12 @@ export class EventsService {
         date: new Date(createEventDto.date),
         location: createEventDto.location,
         price: createEventDto.price,
+        slug: createEventDto.slug,
+        category: createEventDto.category,
+        categoryColor: createEventDto.categoryColor,
+        organizer: createEventDto.organizer,
+        imageColor: createEventDto.imageColor,
+        isFeatured: createEventDto.isFeatured ?? false,
       }
     })
     const seats: {

@@ -49,6 +49,13 @@ model Event {
   location    String
   price       Int
   banner      String?
+  slug        String   @unique
+  category    String
+  categoryColor String
+  organizer   String
+  imageColor String
+
+  isFeatured   Boolean  @default(false)
 
   seats       Seat[]
   orders      Order[]

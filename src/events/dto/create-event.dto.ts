@@ -1,4 +1,4 @@
-import{ IsString, IsNotEmpty, IsDateString, IsInt } from 'class-validator';
+import{ IsString, IsNotEmpty, IsDateString, IsInt, IsBoolean, IsNumber, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateEventDto {
     @IsNotEmpty()
@@ -17,4 +17,29 @@ export class CreateEventDto {
 
     @IsInt()
     price!: number;
+
+    @IsString()
+    slug!: string;
+
+    @IsString()
+    category!: string;
+
+    @IsString()
+    categoryColor!: string;
+
+    @IsString()
+    organizer!: string;
+
+    @IsString()
+    imageColor!: string;
+
+    @IsNumber()
+    availableSeats!: number;
+
+    @IsNumber()
+    totalSeats!: number;
+
+    @IsOptional()
+    @IsBoolean()
+    isFeatured?: boolean;
 }

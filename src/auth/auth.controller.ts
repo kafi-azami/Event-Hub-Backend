@@ -32,6 +32,7 @@ export class AuthController {
        return req.user;
    }
 
+   @ApiBearerAuth()
    @Roles('ADMIN')
    @UseGuards(JwtAuthGuard, RolesGuard)
    @Get('users')
@@ -39,6 +40,7 @@ export class AuthController {
        return this.usersService.findAll();
    }
 
+   @ApiBearerAuth()
    @Roles('ADMIN')
    @UseGuards(JwtAuthGuard, RolesGuard)
    @Get('admin-only')

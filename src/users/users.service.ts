@@ -16,4 +16,16 @@ export class UsersService {
             data,
         })
     }
+
+    findAll() {
+        return this.prisma.client.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                createdAt: true
+            }
+        });
+    }
 }

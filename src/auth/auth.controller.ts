@@ -7,11 +7,12 @@ import { UseGuards, Get,Request } from '@nestjs/common';
 import { RolesGuard } from '../common/roles.guard';
 import { Roles } from '../common/roles.decorator';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { UsersService } from '../users/users.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService, private usersService: UsersService) {}
 
     @ApiOperation({ summary: 'Register new user' })
     @Post('register')
@@ -29,6 +30,13 @@ export class AuthController {
     @Get('profile')
     getProfile(@Request() req) {
        return req.user;
+   }
+
+   @Roles('ADMIN')
+   @UseGuards(JwtAuthGuard, RolesGuard)
+   @Get('users')
+   getUsers() {
+       return this.usersService.findAll();
    }
 
    @Roles('ADMIN')

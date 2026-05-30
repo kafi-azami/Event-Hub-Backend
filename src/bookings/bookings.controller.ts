@@ -4,7 +4,7 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { getPriority } from 'os';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Bookings')
 @Controller('bookings')
@@ -12,7 +12,6 @@ export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   create(@Body() dto: CreateBookingDto, @Request() req) {
     return this.bookingsService.create(req.user.userId, dto);
   }
@@ -22,7 +21,7 @@ export class BookingsController {
     return this.bookingsService.payOrder(+id);
   }
 
-  @Get()
+  @Get() 
   findAll() {
     return this.bookingsService.findAll();
   }
@@ -37,6 +36,8 @@ export class BookingsController {
     return this.bookingsService.update(+id, updateBookingDto);
   }
 
+  
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id/cancel')
   cancelOrder(@Request() req, @Param('id') id: string) {

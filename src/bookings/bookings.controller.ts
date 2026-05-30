@@ -11,17 +11,20 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
+  @ApiBearerAuth()
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@Body() dto: CreateBookingDto, @Request() req) {
     return this.bookingsService.create(req.user.userId, dto);
   }
 
+  @ApiBearerAuth()
   @Post(':id/pay')
   payOrder(@Param('id') id: string) {
     return this.bookingsService.payOrder(+id);
   }
 
-  @Get() 
+  @Get()
   findAll() {
     return this.bookingsService.findAll();
   }

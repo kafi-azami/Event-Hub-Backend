@@ -74,6 +74,11 @@ export class EventsController {
     return this.eventsService.findOne(+id);
   }
 
+  @Get('by-slug/:slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.eventsService.findBySlug(slug);
+  }
+
   @Get(':id/seats')
   getSeats(@Param('id') id: string) {
     return this.eventsService.getSeats(+id);

@@ -131,6 +131,12 @@ export class EventsService {
     }
   }
 
+  async findBySlug(slug: string) {
+    return this.prisma.client.event.findUnique({
+      where: { slug },
+    })
+  }
+
   async update(id: number,dto: UpdateEventDto) {
     const event = await this.prisma.client.event.findUnique({
       where: { id },

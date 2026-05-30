@@ -11,11 +11,11 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 
 @ApiTags('Events')
-@ApiBearerAuth()
 @Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Post()
@@ -23,6 +23,7 @@ export class EventsController {
     return this.eventsService.create(createEventDto);
   }
 
+  @ApiBearerAuth()
   @Roles('ADMIN')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('upload')
@@ -89,6 +90,8 @@ export class EventsController {
     return this.eventsService.getSeatStatus(+id);
   }
 
+  
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Patch(':id')
@@ -96,6 +99,7 @@ export class EventsController {
     return this.eventsService.update(+id, dto);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Delete(':id')

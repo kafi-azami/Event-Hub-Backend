@@ -7,8 +7,14 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+    ],
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-  app.useStaticAssets(join(__dirname, '..', 'uploads'))
+  app.useStaticAssets(join(__dirname, '..', 'uploads'));
 
   const config = new DocumentBuilder()
     .setTitle('Tikethub API')

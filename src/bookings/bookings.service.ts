@@ -224,8 +224,21 @@ export class BookingsService {
 
 }
 
-  findAll() {
-    return `This action returns all bookings`;
+  async findAll(userId: number) {
+    return this.prisma.client.order.findMany({
+      where: { userId },
+      include: {
+        event: true,
+        tickets: {
+          include: {
+            seat: true,
+          },
+        },
+      },
+      orderBy:{
+        createdAt: 'desc'
+      },
+    });
   }
 
   findOne(id: number) {

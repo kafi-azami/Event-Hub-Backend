@@ -24,9 +24,11 @@ export class BookingsController {
     return this.bookingsService.payOrder(+id);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.bookingsService.findAll();
+  findAll(@Request() req) {
+    return this.bookingsService.findAll(req.user.userId);
   }
 
   @Get(':id')

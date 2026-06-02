@@ -39,6 +39,13 @@ export class BookingsController {
     return this.bookingsService.findAll(req.user.userId);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/dashboard-stats')
+  getDashboardStats() {
+    return this.bookingsService.getDashboardStats();
+  }
+
   @Get(':id')
   getPriority(@Param('id') id: string) {
     return this.bookingsService.getOrder(+id);

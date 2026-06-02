@@ -119,6 +119,33 @@ export class BookingsService {
   });
   }
 
+  async findAllBookings() {
+  return this.prisma.client.order.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+
+      event: true,
+
+      tickets: {
+        include: {
+          seat: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}
+
   async cancelOrder(
   userId: number,
   orderId: number,

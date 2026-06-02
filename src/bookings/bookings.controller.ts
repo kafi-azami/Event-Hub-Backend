@@ -5,11 +5,12 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { getPriority } from 'os';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Roles } from '../common/roles.decorator';
 
 @ApiTags('Bookings')
 @Controller('bookings')
 export class BookingsController {
-  constructor(private readonly bookingsService: BookingsService) {}
+  constructor(private readonly bookingsService: BookingsService) { }
 
   @ApiBearerAuth()
   @Post()
@@ -22,6 +23,13 @@ export class BookingsController {
   @Post(':id/pay')
   payOrder(@Param('id') id: string) {
     return this.bookingsService.payOrder(+id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/all')
+  findAllBookings() {
+    return this.bookingsService.findAllBookings();
   }
 
   @ApiBearerAuth()
@@ -41,7 +49,7 @@ export class BookingsController {
     return this.bookingsService.update(+id, updateBookingDto);
   }
 
-  
+
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id/cancel')

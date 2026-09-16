@@ -341,6 +341,6 @@ Tanggung jawab utama meliputi:
 ---
 ## License
 
-Project ini dibuat untuk keperluan pembelajaran dan pengembangan aplikasi.
+Project ini dibuat untuk keperluan pembelajaran dan pengembangan website.
 
 ---
